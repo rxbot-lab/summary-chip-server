@@ -70,7 +70,7 @@ export class AiSummaryService {
   async generateAISummaryFromUrl(
     url: string,
     language: string = "en",
-    maxWords: number = 60
+    maxWords: number = 20
   ) {
     const body = await this.getHtmlBody(url);
     return this.generateSummaryFromText(body, language, maxWords);
@@ -79,7 +79,7 @@ export class AiSummaryService {
   async generateSummaryFromText(
     body: string,
     language: string = "en",
-    maxWords: number = 60
+    maxWords: number = 20
   ) {
     const { text } = await generateText({
       model,
@@ -89,15 +89,18 @@ export class AiSummaryService {
     return text;
   }
 
-  async generateHighlightsFromUrl(url: string) {
+  async generateHighlightsFromUrl(url: string, language: string = "en") {
     const body = await this.getHtmlBody(url);
-    return this.generateHighlightsFromText(body);
+    return this.generateHighlightsFromText(body, language);
   }
 
-  async generateHighlightsFromText(body: string): Promise<string[]> {
+  async generateHighlightsFromText(
+    body: string,
+    language: string
+  ): Promise<string[]> {
     const { object } = await generateObject({
       model,
-      prompt: `Highlight the key points of the article:\n${body}`,
+      prompt: `Highlight the key points of the article less than 20 words in language: ${language}:\n${body}`,
       schema: z.object({
         hightlights: z.array(z.string()),
       }),

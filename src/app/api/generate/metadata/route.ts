@@ -8,6 +8,15 @@ const BodySchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const apiKey = request.headers.get("x-api-key");
+    if (apiKey !== process.env.ADMIN_API_KEY) {
+      return NextResponse.json(
+        { message: "Unauthorized" },
+        {
+          status: 401,
+        }
+      );
+    }
     const body = BodySchema.parse(await request.json());
 
     const metadata = await getWebsiteMetadata(body.url);

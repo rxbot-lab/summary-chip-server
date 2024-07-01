@@ -13,6 +13,17 @@ const service = new AiSummaryService();
 
 export async function POST(request: NextRequest) {
   try {
+    // get x-api-key from headers
+    const apiKey = request.headers.get("x-api-key");
+    if (apiKey !== process.env.ADMIN_API_KEY) {
+      return NextResponse.json(
+        { message: "Unauthorized" },
+        {
+          status: 401,
+        }
+      );
+    }
+
     const body = BodySchema.parse(await request.json());
     const summaryPromise = service.generateAISummaryFromUrl(
       body.url,
@@ -20,7 +31,7 @@ export async function POST(request: NextRequest) {
       body.maxWords
     );
 
-    const hightlightsPromise = service.generateHighlightsFromUrl(body.url);
+    const hightlightsPromise = service.generateHighlightsFromUrl(body.url, body.language);
 
     const [summary, hightlights] = await Promise.all([
       summaryPromise,
