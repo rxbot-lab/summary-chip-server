@@ -1,0 +1,81 @@
+openapi: 3.0.0
+info:
+  title: Summary Chip API
+  description: A Simple Summary Chip API definition
+  version: 1.0.0
+servers:
+  - url: https://summary.service.rxbot.dev
+paths:
+  /add-link:
+    post:
+      summary: Add a new link and generate a summary chip preview url
+      operationId: addLink
+      description: |
+        Add a new link and generate a summary chip preview url.
+        The generated url will responsible for opengraph scraping and generating a summary chip preview
+        for other apps.
+      requestBody:
+        required: true
+        description: |
+          The body is a multipart form data with the link details.
+          This allows the client to upload the image file and other details.
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LinkInput'
+      responses:
+        200:
+          description: Link added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message
+        code:
+          type: integer
+          description: Error code
+    LinkInput:
+      type: object
+      required:
+        - url
+        - title
+        - description
+      properties:
+        url:
+          type: string
+          description: Original URL
+        image:
+          type: string
+          format: binary
+          description: Image file. This image will be stored in s3 bucket for 7 days
+        title:
+          type: string
+          description: Title of the link
+        description:
+          type: string
+          description: Description of the link
+    LinkResponse:
+      type: object
+      properties:
+        url:
+          type: string
+          description: Summary chip preview url
